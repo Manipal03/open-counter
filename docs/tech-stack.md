@@ -4,6 +4,8 @@
 
 Pinned in `requirements.txt` / `requirements-dev.txt`: fastapi 0.115.12, uvicorn[standard] 0.34.2, httpx 0.28.1, jinja2 3.1.6, python-multipart 0.0.20, pydantic 2.14.3, anthropic 2.8.0; dev: pytest 8.3.5, respx 0.22.0, ruff 0.17.4.
 
+AI provider: Google Gemini API (default, free tier, `gemini-3.5-flash-lite`) called over REST with the existing `httpx` (no new dependency); the Anthropic SDK remains as `AI_PROVIDER=anthropic`. Reason: no Anthropic key available on deadline day.
+
 Changes from the plan below: stdlib `sqlite3` instead of SQLAlchemy/Postgres; plain JavaScript instead of HTMX; no MCP SDK. The env var `AI_PROVIDER_API_KEY` became `ANTHROPIC_API_KEY`, `AI_MODEL_DEFAULT`/`AI_MODEL_FALLBACK` became `AI_MODEL`, and `AI_DAILY_BUDGET_USD` became `AI_DAILY_CALL_LIMIT`. Webhook, session and rate-limit variables are unused. See `.env.example` for the current list.
 
 ## Original plan

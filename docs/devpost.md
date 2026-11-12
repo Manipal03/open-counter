@@ -24,7 +24,7 @@ The AI can suggest and assemble, but it can't set a price or move money. One pro
 ## How we built it
 - **Backend:** Python and FastAPI, SQLite, server-rendered pages.
 - **PayPal:** the Orders v2 REST API in the Sandbox: create order, buyer approval, capture. Requests use the `PayPal-Request-Id` header so retries can't create or capture twice.
-- **AI:** Claude from Anthropic, using tool calling. The assistant has three tools: search products, get a product, and create a checkout from SKUs and quantities. It can't pass a price.
+- **AI:** Google Gemini (`gemini-3.5-flash-lite`) using function calling, behind a small gateway that can also use Claude. The assistant has three tools: search products, get a product, and create a checkout from SKUs and quantities. It can't pass a price.
 - **Safety by design:** one function owns every order state change, and each change is written to an append-only audit log. The app refuses to start unless it's pointed at the PayPal Sandbox.
 - **Demo mode:** a "recorded" mode replays a saved conversation so judges can try it without an AI key. The page labels it as recorded.
 - **Tests:** pytest with PayPal and the AI mocked, covering a tampered amount, capture before approval, double capture, the prompt-injection product, and refusal to run outside sandbox.
@@ -52,7 +52,7 @@ The hard part wasn't getting the AI to talk to PayPal; it was deciding what it m
 ---
 
 ## Built with (tags)
-python, fastapi, sqlite, jinja2, httpx, paypal, paypal-orders-api, anthropic, claude, render, pytest
+python, fastapi, sqlite, jinja2, httpx, paypal, paypal-orders-api, gemini, google-ai-studio, render, pytest
 
 ## Try it out (links)
 - GitHub repo: https://github.com/Manipal03/open-counter
@@ -62,7 +62,7 @@ python, fastapi, sqlite, jinja2, httpx, paypal, paypal-orders-api, anthropic, cl
 **[FILL: public YouTube URL, under 3 minutes]**
 
 ## AI tools used (if the form asks separately)
-- **Claude (Anthropic API)** powers the shopping assistant. It uses tool calling to search the catalog and build a cart; it never sets prices or triggers payment.
+- **Google Gemini API** powers the shopping assistant. It uses function calling to search the catalog and build a cart; it never sets prices or triggers payment. The code also supports Claude (Anthropic API) as an alternative provider.
 - **Claude Code** was used as a coding assistant to help design and write the app and tests.
 
 ## Testing instructions for judges

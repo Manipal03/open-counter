@@ -20,8 +20,11 @@ class Settings:
     paypal_client_secret: str
     app_base_url: str
     ai_mode: str
+    ai_provider: str
     anthropic_api_key: str
     ai_model: str
+    gemini_api_key: str
+    gemini_model: str
     ai_daily_call_limit: int
     database_path: str
     paypal_base_url: str = PAYPAL_SANDBOX_BASE_URL
@@ -54,8 +57,13 @@ def load_settings(env: dict[str, str] | None = None) -> Settings:
     ai_mode = env.get("AI_MODE", "replay").strip().lower()
     if ai_mode not in {"live", "replay"}:
         raise ConfigError("AI_MODE must be 'live' or 'replay'.")
+    ai_provider = env.get("AI_PROVIDER", "gemini").strip().lower()
+    if ai_provider not in {"gemini", "anthropic"}:
+        raise ConfigError("AI_PROVIDER must be 'gemini' or 'anthropic'.")
     api_key = env.get("ANTHROPIC_API_KEY", "").strip()
-    if ai_mode == "live" and not api_key:
+    gemini_key = env.get("GEMINI_API_KEY", "").strip()
+    provider_key = gemini_key if ai_provider == "gemini" else api_key
+    if ai_mode == "live" and not provider_key:
         ai_mode = "replay"
 
     try:
@@ -68,8 +76,11 @@ def load_settings(env: dict[str, str] | None = None) -> Settings:
         paypal_client_secret=env.get("PAYPAL_CLIENT_SECRET", "").strip(),
         app_base_url=env.get("APP_BASE_URL", "http://localhost:8000").rstrip("/"),
         ai_mode=ai_mode,
+        ai_provider=ai_provider,
         anthropic_api_key=api_key,
         ai_model=env.get("AI_MODEL", "claude-opus-5-5").strip(),
+        gemini_api_key=gemini_key,
+        gemini_model=env.get("GEMINI_MODEL", "gemini-3.5-flash-lite").strip(),
         ai_daily_call_limit=max(0, limit),
         database_path=env.get("DATABASE_PATH", "open_counter.db"),
     )

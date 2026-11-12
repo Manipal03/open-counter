@@ -52,7 +52,8 @@ def _text(t):
 
 
 def _assistant(conn, tmp_path, paypal, script, **env):
-    s = make_settings(tmp_path, AI_MODE="live", ANTHROPIC_API_KEY="k", **env)
+    s = make_settings(tmp_path, AI_MODE="live", AI_PROVIDER="anthropic", ANTHROPIC_API_KEY="k",
+                      **env)
     return ShoppingAssistant(conn, s, paypal, client=FakeClient(script))
 
 
@@ -101,8 +102,10 @@ def test_budget_cap_falls_back_to_scripted_mode(conn, tmp_path, paypal, fake_pay
 
 
 def test_live_without_key_runs_replay(tmp_path):
-    s = make_settings(tmp_path, AI_MODE="live", ANTHROPIC_API_KEY="")
+    s = make_settings(tmp_path, AI_MODE="live", AI_PROVIDER="anthropic", ANTHROPIC_API_KEY="")
     assert s.ai_mode == "replay"
+    g = make_settings(tmp_path, AI_MODE="live", AI_PROVIDER="gemini", GEMINI_API_KEY="")
+    assert g.ai_mode == "replay"
 
 
 def test_replay_finds_jacket_and_checks_out_at_catalog_price(conn, settings, paypal, fake_paypal):

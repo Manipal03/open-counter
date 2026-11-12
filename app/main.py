@@ -28,12 +28,15 @@ def create_app(
     settings: Settings | None = None,
     paypal: PayPalClient | None = None,
     assistant_client=None,
+    gemini_client=None,
 ) -> FastAPI:
     settings = settings or load_settings()
     conn = connect(settings.database_path)
     init_db(conn)
     paypal = paypal or PayPalClient(settings)
-    assistant = ShoppingAssistant(conn, settings, paypal, client=assistant_client)
+    assistant = ShoppingAssistant(
+        conn, settings, paypal, client=assistant_client, gemini_client=gemini_client
+    )
 
     app = FastAPI(title="Open Counter", docs_url=None, redoc_url=None)
     app.state.conn = conn
@@ -61,6 +64,7 @@ def create_app(
             {
                 "products": catalog.list_products(conn),
                 "ai_mode": settings.ai_mode,
+                "ai_label": "Gemini" if settings.ai_provider == "gemini" else "Claude",
                 "paypal_ready": paypal.configured,
             },
         )

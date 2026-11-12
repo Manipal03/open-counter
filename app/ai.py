@@ -1,7 +1,8 @@
 """AI gateway and shopping assistant.
 
 Every AI call goes through `ShoppingAssistant.reply`. Two modes:
-- live:   Claude (Anthropic API) with three narrow tools, a timeout, and a daily call cap.
+- live:   Gemini (default, AI_PROVIDER=gemini) or Claude (AI_PROVIDER=anthropic), with three
+          narrow tools, a timeout, and a daily call cap.
 - replay: a scripted demo assistant that runs the same tools without calling any AI.
           The UI labels it as scripted.
 
@@ -21,6 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from app import catalog
 from app.checkout import CheckoutError, create_checkout
 from app.config import Settings
+from app.gemini import GEMINI_TOOLS, GeminiClient, GeminiError
 from app.paypal import PayPalClient
 
 MAX_TOOL_ROUNDS = 5
@@ -150,15 +152,20 @@ class ShoppingAssistant:
         settings: Settings,
         paypal: PayPalClient,
         client: anthropic.Anthropic | None = None,
+        gemini_client: GeminiClient | None = None,
     ):
         self.conn = conn
         self.settings = settings
         self.paypal = paypal
         self.client = client
-        if client is None and settings.ai_mode == "live":
+        self.gemini = gemini_client
+        live = settings.ai_mode == "live"
+        if live and settings.ai_provider == "anthropic" and client is None:
             self.client = anthropic.Anthropic(
                 api_key=settings.anthropic_api_key, timeout=45.0, max_retries=1
             )
+        if live and settings.ai_provider == "gemini" and gemini_client is None:
+            self.gemini = GeminiClient(settings.gemini_api_key, settings.gemini_model)
 
     # ----- session storage -----
 
@@ -248,9 +255,15 @@ class ShoppingAssistant:
                               mode=self.settings.ai_mode)
         state["user_turns"] += 1
 
-        if self.settings.ai_mode == "live" and self.client is not None:
+        live = None
+        if self.settings.ai_mode == "live":
+            if self.settings.ai_provider == "gemini" and self.gemini is not None:
+                live = self._reply_live_gemini
+            elif self.settings.ai_provider == "anthropic" and self.client is not None:
+                live = self._reply_live
+        if live is not None:
             try:
-                result = self._reply_live(state, message)
+                result = live(state, message)
                 self._save(session_id, state)
                 return result
             except _FallBack as fb:
@@ -313,6 +326,61 @@ class ShoppingAssistant:
             messages.append({"role": "user", "content": tool_results})
         raise _FallBack("The AI took too many steps, so this reply is scripted.")
 
+    # ----- live mode: Gemini -----
+
+    _GEMINI_BLOCKED = {"SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION"}
+
+    def _reply_live_gemini(self, state: dict, message: str) -> ChatResult:
+        result = ChatResult(text="", mode="live")
+        contents = list(state.get("gemini_contents", []))
+        contents.append({"role": "user", "parts": [{"text": message}]})
+        for _ in range(MAX_TOOL_ROUNDS):
+            if not self._take_call_budget():
+                raise _FallBack("Today's AI budget is used up, so this reply is scripted.")
+            try:
+                data = self.gemini.generate(SYSTEM_PROMPT, contents, GEMINI_TOOLS)
+            except GeminiError as exc:
+                if exc.status_code == 429:
+                    raise _FallBack("The AI is busy right now, so this reply is scripted.") \
+                        from exc
+                if exc.status_code == 0:
+                    raise _FallBack("Couldn't reach the AI service, so this reply is scripted.") \
+                        from exc
+                raise _FallBack("The AI service returned an error, so this reply is scripted.") \
+                    from exc
+
+            candidates = data.get("candidates") if isinstance(data, dict) else None
+            if not candidates:
+                raise _FallBack("The AI declined that request, so this reply is scripted.")
+            cand = candidates[0]
+            parts = (cand.get("content") or {}).get("parts") or []
+            if not parts:
+                if cand.get("finishReason") in self._GEMINI_BLOCKED:
+                    raise _FallBack("The AI declined that request, so this reply is scripted.")
+                raise _FallBack("The AI sent an empty reply, so this reply is scripted.")
+            # Keep the model's parts exactly as received (they may carry thought signatures).
+            contents.append({"role": "model", "parts": parts})
+
+            calls = [p["functionCall"] for p in parts if isinstance(p.get("functionCall"), dict)]
+            if not calls:
+                result.text = "\n".join(
+                    p["text"] for p in parts if p.get("text") and not p.get("thought")
+                ).strip() or "Sorry, I didn't catch that. What are you looking for?"
+                state["gemini_contents"] = contents
+                return result
+
+            responses = []
+            for fc in calls:
+                payload, is_error = self.run_tool(
+                    str(fc.get("name", "")), _whole_numbers(fc.get("args") or {}), result
+                )
+                fr = {"name": fc.get("name", ""), "response": payload}
+                if fc.get("id"):
+                    fr["id"] = fc["id"]
+                responses.append({"functionResponse": fr})
+            contents.append({"role": "user", "parts": responses})
+        raise _FallBack("The AI took too many steps, so this reply is scripted.")
+
     # ----- replay (scripted) mode -----
 
     _BUY = re.compile(r"\b(buy|checkout|check out|take it|i'll take|add|yes|order|purchase)\b",
@@ -359,6 +427,17 @@ class ShoppingAssistant:
             result.text = ("Here's what I found:\n" + "\n".join(lines) +
                            "\nSay 'buy the first one' (or second, third) to check out.")
         return result
+
+
+def _whole_numbers(value):
+    """Gemini may send integers as 2.0; turn whole floats back into ints, leave the rest."""
+    if isinstance(value, dict):
+        return {k: _whole_numbers(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_whole_numbers(v) for v in value]
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    return value
 
 
 class _FallBack(Exception):

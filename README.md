@@ -7,7 +7,7 @@ Built for the [PayPal AI Hackathon](https://paypalaihackathon.devpost.com/). All
 ## What it does
 
 1. A shopper tells the assistant what they want ("a waterproof jacket under $80, it's a gift").
-2. The assistant (Claude, using tool calls) searches the catalog and builds a cart.
+2. The assistant (Google Gemini by default, or Claude, using function calls) searches the catalog and builds a cart.
 3. The server prices the cart **from the catalog** and creates a PayPal Orders v2 order.
 4. The buyer approves on PayPal's page.
 5. On return, the server checks the order is `APPROVED` and that the amount, currency and cart hash match what it stored, then captures. It captures once at most.
@@ -36,9 +36,11 @@ Copy `.env.example` to `.env` and fill it in:
 | `PAYPAL_ENV` | Must be `sandbox`. The app refuses to start otherwise. |
 | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | From a REST app in the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/) (Sandbox). |
 | `APP_BASE_URL` | Where PayPal sends the buyer back, e.g. `http://localhost:8000`. |
-| `AI_MODE` | `live` (Claude) or `replay` (scripted, no key needed). |
-| `ANTHROPIC_API_KEY` | Needed for `live`. Without it the app runs `replay`. |
-| `AI_MODEL` | Defaults to `claude-opus-5-5`. |
+| `AI_MODE` | `live` (real AI) or `replay` (scripted, no key needed). |
+| `AI_PROVIDER` | `gemini` (default) or `anthropic`. |
+| `GEMINI_API_KEY` | From [Google AI Studio](https://aistudio.google.com/) (free tier). Needed for `live` with Gemini. Without a key the app runs `replay`. |
+| `GEMINI_MODEL` | Defaults to `gemini-3.5-flash-lite`. |
+| `ANTHROPIC_API_KEY`, `AI_MODEL` | Only for `AI_PROVIDER=anthropic`; model defaults to `claude-opus-5-5`. |
 | `AI_DAILY_CALL_LIMIT` | Max AI calls per UTC day; after that, replies are scripted. |
 | `DATABASE_PATH` | SQLite file; created and seeded on first start. |
 
@@ -59,7 +61,7 @@ Open http://localhost:8000. To pay, log in on PayPal's page with a **Sandbox per
 .venv/Scripts/python -m ruff check .
 ```
 
-PayPal and Claude are mocked, so the tests need no keys or network. They cover:
+PayPal, Gemini and Claude are mocked, so the tests need no keys or network. They cover:
 - the app refuses to run outside sandbox
 - totals come from the catalog, and client-sent prices are ignored
 - tampered amount or currency means no capture
@@ -74,7 +76,7 @@ PayPal and Claude are mocked, so the tests need no keys or network. They cover:
 
 ## Deploy (Render)
 
-`render.yaml` describes one free web service. Set `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `ANTHROPIC_API_KEY` and `APP_BASE_URL` (the service's public URL) in the Render dashboard.
+`render.yaml` describes one free web service. Set `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `GEMINI_API_KEY` and `APP_BASE_URL` (the service's public URL) in the Render dashboard.
 
 ## How it's built
 
@@ -83,7 +85,8 @@ PayPal and Claude are mocked, so the tests need no keys or network. They cover:
 | Settings and sandbox-only guard | `app/config.py` |
 | PayPal Orders v2 client (sandbox host pinned) | `app/paypal.py` |
 | Cart pricing, order state machine, capture rules | `app/checkout.py` |
-| AI assistant: Claude tool loop, scripted mode, daily cap | `app/ai.py` |
+| AI assistant: Gemini and Claude tool loops, scripted mode, daily cap | `app/ai.py` |
+| Gemini REST client and function declarations | `app/gemini.py` |
 | Catalog search | `app/catalog.py` |
 | SQLite schema, append-only audit triggers, seed data | `app/db.py`, `app/seed_catalog.json` |
 | Web routes and pages | `app/main.py`, `app/templates/`, `app/static/` |
@@ -100,7 +103,8 @@ PayPal endpoints used: OAuth token, create order, show order, capture order ([Or
 
 ## AI tools used
 
-- **Claude (Anthropic API)** runs the shopping assistant through tool calls.
+- **Google Gemini API** (`gemini-3.5-flash-lite`) runs the hosted shopping assistant through function calls.
+- **Claude (Anthropic API)** is a supported alternative provider (`AI_PROVIDER=anthropic`).
 - **Claude Code** helped design and write this code and its tests.
 
 ## License
