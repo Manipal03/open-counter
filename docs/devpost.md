@@ -55,7 +55,7 @@ The hard part wasn't getting the AI to talk to PayPal; it was deciding what it m
 python, fastapi, sqlite, jinja2, httpx, paypal, paypal-orders-api, anthropic, claude, render, pytest
 
 ## Try it out (links)
-- GitHub repo: **[FILL]**
+- GitHub repo: https://github.com/Manipal03/open-counter
 - Live demo: **[FILL: Render URL]**
 
 ## Video demo link
