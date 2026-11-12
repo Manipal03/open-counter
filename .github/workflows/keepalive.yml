@@ -1,0 +1,27 @@
+name: Keep demo awake
+
+# Render's free plan sleeps after ~15 minutes without traffic. This pings the public
+# health endpoint so judges don't hit a cold start, and fails loudly if the site is down
+# (GitHub emails the repo owner when a scheduled run fails).
+on:
+  schedule:
+    - cron: "*/14 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping /health
+        run: |
+          url="https://open-counter-pk8w.onrender.com/health"
+          for i in 1 2 3; do
+            body=$(curl -fsS --max-time 90 "$url") && echo "$body" && break
+            echo "attempt $i failed, retrying in 20s"; sleep 20
+            [ "$i" = 3 ] && { echo "::error::Demo is down: $url"; exit 1; }
+          done
+          echo "$body" | grep -q '"paypal_env":"sandbox"' || { echo "::error::Unexpected health response"; exit 1; }

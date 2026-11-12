@@ -1,0 +1,48 @@
+name: Reminders
+
+# Opens a GitHub issue on each reminder date (once). GitHub notifies the repo owner by
+# email/app. Edit the dates or text below to change the reminders.
+on:
+  schedule:
+    - cron: "30 3 * * *"   # daily, 09:00 IST
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open reminder issues that are due
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          today=$(date -u +%F)
+          remind() {  # $1 = due date (YYYY-MM-DD), $2 = title, $3 = body
+            if [[ "$today" < "$1" ]]; then echo "not due: $2 ($1)"; return; fi
+            if gh issue list -R "$REPO" --state all --search "in:title \"$2\"" --json title \
+                 --jq '.[].title' | grep -Fxq "$2"; then echo "already opened: $2"; return; fi
+            gh issue create -R "$REPO" --title "$2" --body "$3" --assignee "${{ github.repository_owner }}"
+          }
+
+          remind 2026-11-13 "Reminder: rotate the Gemini API key and PayPal sandbox secret" \
+          "Rotate both as a precaution now that the project is submitted.
+          - [ ] Google AI Studio: create a new Gemini API key, delete the old one.
+          - [ ] PayPal Developer Dashboard (Sandbox) → your app → generate a new secret.
+          - [ ] Update local \`.env\` and Render → open-counter → Environment, then redeploy.
+          - [ ] Run one sandbox purchase on the live site to confirm it still works.
+          Close this issue when done."
+
+          remind 2026-11-20 "Reminder: check the Render demo is still running" \
+          "Judges may still be testing.
+          - [ ] Open https://open-counter-pk8w.onrender.com and do one sandbox purchase.
+          - [ ] Check the 'Keep demo awake' workflow runs are green in the Actions tab.
+          - [ ] Don't delete the Render service before results (around 2026-12-21)."
+
+          remind 2026-12-22 "Reminder: hackathon judging is over — decide on the demo" \
+          "Results were due around 2026-12-21.
+          - [ ] Keep or delete the Render service.
+          - [ ] If deleting, disable the 'Keep demo awake' workflow (Actions → Keep demo awake → Disable).
+          - [ ] Rotate keys again if anything was shared during judging."

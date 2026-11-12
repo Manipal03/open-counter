@@ -80,6 +80,14 @@ PayPal, Gemini and Claude are mocked, so the tests need no keys or network. They
 
 `render.yaml` describes one free web service. Set `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` and `GEMINI_API_KEY` in the Render dashboard. The return URL comes from Render's `RENDER_EXTERNAL_URL` unless you set `APP_BASE_URL`. The free tier sleeps after inactivity, so open the site once before a demo.
 
+## Automation (GitHub Actions)
+
+| Workflow | When | What |
+|---|---|---|
+| `ci.yml` | every push / PR | `ruff check` and `pytest` (no secrets needed) |
+| `keepalive.yml` | every 14 min | pings `/health` so the free Render service doesn't sleep; fails (and emails the owner) if the demo is down |
+| `reminders.yml` | daily | opens a reminder issue on set dates (rotate keys, check the demo, post-judging cleanup) |
+
 ## How it's built
 
 | Part | File |
