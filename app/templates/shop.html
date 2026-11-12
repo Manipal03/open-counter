@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="layout">
+  <section class="chat" aria-label="Shopping assistant">
+    <div class="chat-head">
+      <h1>Ask the shop assistant</h1>
+      {% if ai_mode == "live" %}
+        <span class="badge live">AI assistant (Claude)</span>
+      {% else %}
+        <span class="badge replay">Demo mode: scripted replies, AI not called</span>
+      {% endif %}
+    </div>
+    <div id="log" class="log" aria-live="polite">
+      <div class="msg bot">Hi! Tell me what you're after, for example "a waterproof jacket under $80, it's a gift".</div>
+    </div>
+    {% if not paypal_ready %}
+      <p class="warn">Checkout is not configured on this server (missing PayPal sandbox credentials).</p>
+    {% endif %}
+    <form id="chat-form" class="chat-form">
+      <input id="chat-input" name="message" maxlength="500" autocomplete="off"
+             placeholder="What are you looking for?" aria-label="Message" required>
+      <button type="submit">Send</button>
+    </form>
+    <p class="hint">Please don't share personal details in the chat.</p>
+  </section>
+
+  <section class="catalog" aria-label="Catalog">
+    <h2>In the shop</h2>
+    <ul class="products">
+      {% for p in products %}
+      <li class="product">
+        <div class="row"><strong>{{ p.name }}</strong><span class="price">${{ p.price_cents | money }}</span></div>
+        <p>{{ p.description }}</p>
+        <small>{{ p.sku }} · {{ p.stock }} in stock</small>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/chat.js"></script>{% endblock %}

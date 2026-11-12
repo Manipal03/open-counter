@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Orders · Open Counter{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Orders</h1>
+  <p class="hint">Every state change is written to an append-only audit log.</p>
+  {% if not orders %}<p>No orders yet. Buy something from the shop to see it here.</p>{% endif %}
+  {% for o in orders %}
+  <details class="order">
+    <summary>
+      <span class="state s-{{ o.state | lower }}">{{ o.state }}</span>
+      <span>${{ o.total }} {{ o.currency }}</span>
+      <span>{{ o.lines | map(attribute="name") | join(", ") }}</span>
+      <small>{{ o.created_at }} UTC</small>
+    </summary>
+    <p><small>Order {{ o.id }}{% if o.paypal_order_id %} · PayPal {{ o.paypal_order_id }}{% endif %}{% if o.capture_id %} · capture {{ o.capture_id }}{% endif %}</small></p>
+    {% if o.failure_reason %}<p class="warn">{{ o.failure_reason }}</p>{% endif %}
+    <table>
+      <thead><tr><th>When (UTC)</th><th>From</th><th>To</th><th>By</th><th>Detail</th></tr></thead>
+      <tbody>
+      {% for a in o.audit %}
+        <tr><td>{{ a.at }}</td><td>{{ a.from_state or "-" }}</td><td>{{ a.to_state }}</td><td>{{ a.actor }}</td><td>{{ a.detail }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </details>
+  {% endfor %}
+</section>
+{% endblock %}

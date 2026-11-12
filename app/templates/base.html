@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Open Counter{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="awning" aria-hidden="true"></div>
+  <header class="top">
+    <a class="brand" href="/">Open Counter</a>
+    <nav>
+      <a href="/">Shop</a>
+      <a href="/orders">Orders (shop owner)</a>
+    </nav>
+  </header>
+  <div class="sandbox-bar">PayPal Sandbox demo. No real money moves.</div>
+  <main>{% block content %}{% endblock %}</main>
+  <footer>Open Counter: an AI assistant can build your cart, but only the shop sets prices and only you approve payment.</footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

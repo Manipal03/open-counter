@@ -1,0 +1,57 @@
+:root {
+  --green: #16352c; --cream: #f2e6cf; --paper: #fbf7ef;
+  --orange: #d9643a; --ink: #1b1b18; --muted: #5d5a52; --line: #e3d8c3;
+  --ok: #2f7d4f; --bad: #b23a2a; --amber-bg: #fde9c8; --amber: #6b4a12;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  background: var(--paper); color: var(--ink); line-height: 1.5; }
+.awning { height: 28px; background: repeating-linear-gradient(90deg, var(--cream) 0 48px, var(--orange) 48px 96px); }
+.top { background: var(--green); color: var(--cream); display: flex; align-items: center;
+  justify-content: space-between; padding: 14px 24px; flex-wrap: wrap; gap: 8px; }
+.brand { color: var(--cream); font-weight: 800; font-size: 1.4rem; text-decoration: none; }
+.top nav a { color: var(--cream); margin-left: 18px; text-decoration: none; }
+.top nav a:hover { text-decoration: underline; }
+.sandbox-bar { background: var(--amber-bg); color: var(--amber); text-align: center; font-size: .9rem; padding: 6px 16px; }
+main { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 24px 16px 40px; }
+h1 { font-size: 1.3rem; margin: 0; }
+h2 { font-size: 1.1rem; margin: 0 0 12px; }
+.layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; }
+@media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .top nav a { margin-left: 0; margin-right: 14px; } }
+.chat, .catalog, .card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+.chat-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.badge { font-size: .78rem; padding: 3px 10px; border-radius: 99px; }
+.badge.live { background: #dff1e5; color: var(--ok); }
+.badge.replay { background: var(--amber-bg); color: var(--amber); }
+.log { height: 420px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
+  padding: 8px; background: var(--paper); border-radius: 8px; }
+.msg { max-width: 85%; padding: 10px 12px; border-radius: 10px; white-space: pre-wrap; }
+.msg.me { align-self: flex-end; background: var(--green); color: var(--cream); }
+.msg.bot { align-self: flex-start; background: #fff; border: 1px solid var(--line); }
+.msg.pending { color: var(--muted); font-style: italic; }
+.msg.error, .warn { color: var(--bad); }
+.msg.notice { align-self: center; font-size: .85rem; color: var(--amber); background: var(--amber-bg); }
+.msg.checkout { align-self: flex-start; background: #fff; border: 2px solid var(--orange); white-space: normal; }
+.msg.checkout ul { margin: 6px 0; padding-left: 18px; }
+.chat-form { display: flex; gap: 8px; margin-top: 12px; }
+.chat-form input { flex: 1; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 1rem; min-width: 0; }
+button, .button { background: var(--green); color: var(--cream); border: 0; border-radius: 8px;
+  padding: 10px 16px; font-size: 1rem; cursor: pointer; text-decoration: none; display: inline-block; }
+button:disabled { opacity: .6; cursor: wait; }
+.button.paypal { background: #ffc439; color: #111; font-weight: 600; }
+.hint { color: var(--muted); font-size: .85rem; margin: 8px 0 0; }
+.products { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.product { border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+.product p { margin: 4px 0; font-size: .92rem; color: var(--muted); }
+.product .row { display: flex; justify-content: space-between; gap: 8px; }
+.price { color: var(--green); font-weight: 700; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: .9rem; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.result { max-width: 640px; margin: 0 auto; }
+.order { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 10px 0; overflow-x: auto; }
+.order summary { cursor: pointer; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+.state { font-size: .78rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: #eee; }
+.s-captured { background: #dff1e5; color: var(--ok); }
+.s-failed, .s-cancelled { background: #f8dcd7; color: var(--bad); }
+.s-awaiting_approval, .s-capturing, .s-pending_paypal { background: var(--amber-bg); color: var(--amber); }

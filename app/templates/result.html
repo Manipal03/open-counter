@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Order status · Open Counter{% endblock %}
+{% block content %}
+<section class="card result">
+  {% if order and order.state == "CAPTURED" %}
+    <h1>Payment complete</h1>
+    <p>Thanks! Your PayPal Sandbox payment of <strong>${{ order.total }} {{ order.currency }}</strong> was captured.</p>
+  {% else %}
+    <h1>Payment not completed</h1>
+    <p class="warn">{{ error or "Something went wrong." }}</p>
+  {% endif %}
+  {% if order %}
+  <table>
+    <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
+    <tbody>
+    {% for li in order.lines %}
+      <tr><td>{{ li.name }}</td><td>{{ li.qty }}</td><td>${{ li.line_cents | money }}</td></tr>
+    {% endfor %}
+    </tbody>
+    <tfoot><tr><td colspan="2">Total</td><td>${{ order.total }} {{ order.currency }}</td></tr></tfoot>
+  </table>
+  <p><small>Order {{ order.id }} · status {{ order.state }}</small></p>
+  {% endif %}
+  <p><a class="button" href="/">Back to the shop</a> <a href="/orders">See the orders page</a></p>
+</section>
+{% endblock %}
