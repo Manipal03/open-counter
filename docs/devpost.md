@@ -56,7 +56,7 @@ python, fastapi, sqlite, jinja2, httpx, paypal, paypal-orders-api, gemini, googl
 
 ## Try it out (links)
 - GitHub repo: https://github.com/Manipal03/open-counter
-- Live demo: **[FILL: Render URL]**
+- Live demo: https://open-counter-pk8w.onrender.com
 
 ## Video demo link
 **[FILL: public YouTube URL, under 3 minutes]**
@@ -66,7 +66,7 @@ python, fastapi, sqlite, jinja2, httpx, paypal, paypal-orders-api, gemini, googl
 - **Claude Code** was used as a coding assistant to help design and write the app and tests.
 
 ## Testing instructions for judges
-1. Open the live demo: **[FILL]**.
+1. Open the live demo: https://open-counter-pk8w.onrender.com (free hosting: the first load after a quiet spell can take up to a minute).
 2. Ask the assistant for something, for example "a waterproof jacket under $80".
 3. Let it build a cart and click the PayPal link.
 4. Log in with the Sandbox buyer account: email **[FILL in Devpost only]**, password **[FILL in Devpost only]**.

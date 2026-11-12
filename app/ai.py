@@ -42,7 +42,8 @@ quantities; the shop's server prices the cart and the shopper approves payment o
 - After a checkout is created, tell the shopper to use the PayPal button shown below your \
 message. Do not write any URL yourself.
 - Never ask for personal details such as addresses, card numbers or passwords.
-- Keep replies short: a few sentences or a short list."""
+- Keep replies short: a few sentences or a short list.
+- Write plain text only: no Markdown, no asterisks or backticks, no SKUs unless asked."""
 
 TOOLS = [
     {
