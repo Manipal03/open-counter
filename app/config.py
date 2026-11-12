@@ -30,6 +30,11 @@ class Settings:
     paypal_base_url: str = PAYPAL_SANDBOX_BASE_URL
 
 
+def _clean(value: str) -> str:
+    """Drop whitespace and surrounding quotes that often sneak in when pasting keys."""
+    return value.strip().strip('"').strip("'").strip()
+
+
 def read_dotenv(path: str = ".env") -> dict[str, str]:
     """Parse simple KEY=VALUE lines from a local .env file, if it exists."""
     values: dict[str, str] = {}
@@ -72,8 +77,8 @@ def load_settings(env: dict[str, str] | None = None) -> Settings:
         raise ConfigError("AI_DAILY_CALL_LIMIT must be an integer.") from exc
 
     return Settings(
-        paypal_client_id=env.get("PAYPAL_CLIENT_ID", "").strip(),
-        paypal_client_secret=env.get("PAYPAL_CLIENT_SECRET", "").strip(),
+        paypal_client_id=_clean(env.get("PAYPAL_CLIENT_ID", "")),
+        paypal_client_secret=_clean(env.get("PAYPAL_CLIENT_SECRET", "")),
         app_base_url=(
             env.get("APP_BASE_URL", "").strip()
             or env.get("RENDER_EXTERNAL_URL", "").strip()  # set automatically by Render

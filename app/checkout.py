@@ -228,7 +228,8 @@ def create_checkout(
     try:
         pp = paypal.create_order(_paypal_order_body(order_id, cart, base_url), f"create-{order_id}")
     except PayPalError as exc:
-        transition(conn, order_id, "FAILED", "system", f"PayPal create failed ({exc.status_code})",
+        transition(conn, order_id, "FAILED", "system",
+                   f"PayPal create failed ({exc.status_code} {exc.error_name})".strip(),
                    failure_reason="Could not create the PayPal order.")
         raise CheckoutError("PayPal is not available right now. Please try again.") from exc
 

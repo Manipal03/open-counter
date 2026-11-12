@@ -32,6 +32,12 @@ def test_paypal_client_pinned_to_sandbox(settings):
         PayPalClient(replace(settings, paypal_base_url="https://api-m.paypal.com"))
 
 
+def test_pasted_keys_are_cleaned():
+    s = load_settings({"PAYPAL_ENV": "sandbox", "PAYPAL_CLIENT_ID": ' "abc" ',
+                       "PAYPAL_CLIENT_SECRET": "'xyz'\n"})
+    assert (s.paypal_client_id, s.paypal_client_secret) == ("abc", "xyz")
+
+
 def test_base_url_falls_back_to_render_url():
     s = load_settings({"PAYPAL_ENV": "sandbox", "RENDER_EXTERNAL_URL": "https://x.onrender.com/"})
     assert s.app_base_url == "https://x.onrender.com"

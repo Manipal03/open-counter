@@ -22,6 +22,14 @@ class PayPalError(Exception):
         self.body = body
 
     @property
+    def error_name(self) -> str:
+        """PayPal's error code (e.g. 'invalid_client'), safe to log; never includes secrets."""
+        if isinstance(self.body, dict):
+            name = self.body.get("error") or self.body.get("name") or ""
+            return str(name)[:60]
+        return ""
+
+    @property
     def retryable(self) -> bool:
         return self.status_code == 0 or self.status_code >= 500
 
