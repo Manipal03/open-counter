@@ -59,7 +59,7 @@ python, fastapi, sqlite, jinja2, httpx, paypal, paypal-orders-api, gemini, googl
 - Live demo: https://open-counter-pk8w.onrender.com
 
 ## Video demo link
-**[FILL: public YouTube URL, under 3 minutes]**
+https://youtu.be/VUJelXD0u4Q
 
 ## AI tools used (if the form asks separately)
 - **Google Gemini API** powers the shopping assistant. It uses function calling to search the catalog and build a cart; it never sets prices or triggers payment. The code also supports Claude (Anthropic API) as an alternative provider.

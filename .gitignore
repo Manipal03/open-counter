@@ -13,3 +13,4 @@ __pycache__/
 .ruff_cache/
 *.db
 demo-video/
+brag-output/work/

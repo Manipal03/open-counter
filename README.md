@@ -2,7 +2,7 @@
 
 A small shop that AI shopping assistants can buy from, with every payment approved by the buyer in PayPal.
 
-**Live demo:** https://open-counter-pk8w.onrender.com (PayPal Sandbox; log in on PayPal's page with a sandbox buyer account).
+**Demo video:** https://youtu.be/VUJelXD0u4Q · **Live demo:** https://open-counter-pk8w.onrender.com (PayPal Sandbox; log in on PayPal's page with a sandbox buyer account).
 
 Built for the [PayPal AI Hackathon](https://paypalaihackathon.devpost.com/). All payments use the **PayPal Sandbox**; no real money moves.
 
