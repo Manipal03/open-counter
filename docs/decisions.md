@@ -73,11 +73,10 @@ Format: context → decision → alternatives → consequences. Status values: *
 - **Must-have tests (payment-critical):** tampered amount rejected; capture blocked if not approved; double capture blocked; webhook with a bad signature rejected; expired order handled; prompt-injection catalog row cannot alter a total.
 
 ## ADR-010 — Licensing and repository
-**Status:** Open
+**Status:** Accepted (2026-11-12)
 
-- The hackathon requires a public repo with an open-source license **[R]**. `LICENSE` is currently empty.
-- **Recommendation:** MIT. **Needs from you:** the license choice and the copyright holder name. Not guessed.
-- Branch naming: the repo is on `master`; the main branch is `main`. Decide before the first commit.
+- The hackathon requires a public repo with an open-source license **[V]** ([Devpost](https://paypalaihackathon.devpost.com/)).
+- **Decision:** MIT License, copyright holder "Manipal" (user-approved). Work is on the `main` branch.
 
 ## ADR-011 — Judge access to the demo
 **Status:** Accepted
