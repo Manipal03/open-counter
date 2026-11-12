@@ -76,7 +76,7 @@ PayPal, Gemini and Claude are mocked, so the tests need no keys or network. They
 
 ## Deploy (Render)
 
-`render.yaml` describes one free web service. Set `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `GEMINI_API_KEY` and `APP_BASE_URL` (the service's public URL) in the Render dashboard.
+`render.yaml` describes one free web service. Set `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` and `GEMINI_API_KEY` in the Render dashboard. The return URL comes from Render's `RENDER_EXTERNAL_URL` unless you set `APP_BASE_URL`. The free tier sleeps after inactivity, so open the site once before a demo.
 
 ## How it's built
 

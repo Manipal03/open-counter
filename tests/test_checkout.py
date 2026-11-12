@@ -32,6 +32,14 @@ def test_paypal_client_pinned_to_sandbox(settings):
         PayPalClient(replace(settings, paypal_base_url="https://api-m.paypal.com"))
 
 
+def test_base_url_falls_back_to_render_url():
+    s = load_settings({"PAYPAL_ENV": "sandbox", "RENDER_EXTERNAL_URL": "https://x.onrender.com/"})
+    assert s.app_base_url == "https://x.onrender.com"
+    s2 = load_settings({"PAYPAL_ENV": "sandbox", "APP_BASE_URL": "https://mine.example",
+                        "RENDER_EXTERNAL_URL": "https://x.onrender.com"})
+    assert s2.app_base_url == "https://mine.example"
+
+
 # ---- server-side totals ----
 
 def test_total_comes_from_catalog_not_client(conn, paypal, fake_paypal):

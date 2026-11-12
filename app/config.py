@@ -74,7 +74,11 @@ def load_settings(env: dict[str, str] | None = None) -> Settings:
     return Settings(
         paypal_client_id=env.get("PAYPAL_CLIENT_ID", "").strip(),
         paypal_client_secret=env.get("PAYPAL_CLIENT_SECRET", "").strip(),
-        app_base_url=env.get("APP_BASE_URL", "http://localhost:8000").rstrip("/"),
+        app_base_url=(
+            env.get("APP_BASE_URL", "").strip()
+            or env.get("RENDER_EXTERNAL_URL", "").strip()  # set automatically by Render
+            or "http://localhost:8000"
+        ).rstrip("/"),
         ai_mode=ai_mode,
         ai_provider=ai_provider,
         anthropic_api_key=api_key,
